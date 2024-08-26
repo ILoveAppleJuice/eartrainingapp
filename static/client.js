@@ -12,7 +12,6 @@ function GenerateGrid(rows,columns){
         for (let c = 0; c < columns; c++) {
             var newCell = document.querySelector("#cellTemplate").content.cloneNode(true)
             
-            console.log(newCell)
             newRow.appendChild(newCell);
         }
 
@@ -21,6 +20,18 @@ function GenerateGrid(rows,columns){
 }
 
 function GenerateJingle(){
+    let poop = [];
+    
+    for (let i = 0; i < jingleLength; i ++){
+
+        $.ajax({
+            url: "your_file.txt",
+            async: false,
+            success: function(data){ 
+                alert(data); 
+            }
+        });
+    }
 
 }
 

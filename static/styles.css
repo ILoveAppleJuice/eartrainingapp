@@ -1,0 +1,31 @@
+#main{
+    background-color: rgb(255, 255, 255);
+    margin: 0px auto;
+
+}
+
+tr{
+
+}
+
+.cellContent{
+    width: 50px;
+    height: 50px;
+    
+    border: 2px solid;
+    border-radius: 4px;
+    background-color: white;
+    /* box-shadow: 0px 0px 4px 1px rgba(0,0,0,0.3); */
+
+}
+
+.cell{
+    padding: 2px;
+}
+
+
+#title{
+    margin: 0px auto;
+    text-align: center;
+    margin-bottom: 30px;
+}

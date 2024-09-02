@@ -29,6 +29,10 @@ tr{
     border: 2px solid rgba(0,0,0,0);
 }
 
+.cellContent[data-outline="t"]{
+    border: 2px solid rgba(0,0,0,0.4);
+}
+
 .cellContent[data-filled="t"] .cellText{
     color: white;
 }

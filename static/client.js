@@ -1,14 +1,13 @@
 
 
 let streak = Cookies.get('jingleStreak') || 0
-console.log(streak)
+console.log("Streak: "+streak)
 
 function GetStreak(){
     return streak
 }
 
 function UpdateStreakLabel(){
-    console.log(streak)
     document.querySelector("#streakLabel").textContent = "Streak: "+streak
 }
 
@@ -28,8 +27,8 @@ const jsConfetti = new JSConfetti()
 
 
 const jingleLength = 5;
-const numTries = 2;
-const noteDelay = 400
+const numTries = 5;
+const noteDelay = 450
 
 var jingle = null;
 var tries = []
@@ -99,6 +98,7 @@ function PlayNote(noteName){
     }
 }
 
+
 function PlayJingle(jingle){
     console.log(jingle)
     for (let i = 0; i < jingle.length; i ++){
@@ -118,7 +118,6 @@ function GenerateJingle(){
 }
 
 function CreateButtons(notes){
-    console.log(notes,notes.length)
     for (let i = 0; i < notes.length; i++) {
         var newBtn = document.querySelector("#btnTemplate").content.cloneNode(true)
         newBtn = newBtn.querySelector("button")
@@ -137,10 +136,31 @@ function CreateButtons(notes){
 function ResetGrid(){
     for (let r = 0;r < numTries; r++){
         for (let c = 0; c < jingleLength; c++){
-            var cell = mainTable.rows[r].cells[c];
-            cell.querySelector(".cellText").textContent = "";
-            cell.querySelector(".cellContent").style.backgroundColor = "#ffffff"
-            cell.querySelector(".cellContent").dataset.filled = "f"
+            let cell = mainTable.rows[r].cells[c];
+            let cellContent = cell.querySelector(".cellContent")
+
+
+            let duration = 0
+
+            if (cellContent.dataset.filled == "t"){
+                duration = 200
+
+                anime({
+                    targets: cellContent,
+                    scale: 0,
+                    easing: 'easeInOutQuad',
+                    direction:"alternate",
+                    duration: duration,
+                });
+            }
+            
+            setTimeout(() => {
+                cell.querySelector(".cellText").textContent = "";
+                cellContent.style.backgroundColor = "#ffffff"
+                cellContent.dataset.filled = "f"
+                cellContent.dataset.outline = "f"
+            }, duration);
+            
         }
     }
 }
@@ -153,18 +173,27 @@ function NotePressed(noteName){
     //PlayNote(noteName)
 
     currNotes.push(noteName)
-    var index = currNotes.length - 1
-    var cell =  mainTable.rows[currTry-1].cells[index]
+    let index = currNotes.length - 1
+    let cell =  mainTable.rows[currTry-1].cells[index]
+    let cellContent = cell.querySelector(".cellContent")
+    cellContent.dataset.outline = "t"
     cell.querySelector(".cellText").textContent = noteName
 
-    console.log(currNotes)
+    anime({
+        targets: cellContent,
+        scale: 1.1,
+        easing: 'linear',
+        direction:"alternate",
+        duration: 30,
+    });
 }
 
 function Submit(){
     if (currNotes.length < jingleLength){
-        alert("what the sigma")
         return
     }
+
+    debounce = true
 
     var won = true
     var map = {}
@@ -174,17 +203,24 @@ function Submit(){
         totalMap[jingle[v]] = totalMap[jingle[v]] || 0
         totalMap[jingle[v]] += 1
     }
-    console.log(totalMap)
 
+    const animationDuration = 260
+    const animationDelay = 260
+
+    const correctColor = "rgb(34, 197, 94)"
+    const closeColor = "rgb(234, 179, 8)"
+    const wrongColor = "rgb(148, 163, 184)"
+    
+    let colorMap = {}
 
     for (let i = 0;i < jingleLength; i ++){ //first pass detect the greens
-        var guess = currNotes[i]
-        var cell =  mainTable.rows[currTry-1].cells[i]
-        var cellContent = cell.querySelector(".cellContent")
+        let guess = currNotes[i]
+        let cell =  mainTable.rows[currTry-1].cells[i]
+        let cellContent = cell.querySelector(".cellContent")
 
         if (guess == jingle[i]){
             //correct placement
-            cellContent.style.backgroundColor = "rgb(34, 197, 94)"
+            colorMap[i] = correctColor
             map[guess] = map[guess] || 0
             map[guess] += 1
 
@@ -193,9 +229,9 @@ function Submit(){
     }
     
     for (let i = 0;i < jingleLength; i ++){ //second pass detect the yellow and grey
-        var guess = currNotes[i]
-        var cell =  mainTable.rows[currTry-1].cells[i]
-        var cellContent = cell.querySelector(".cellContent")
+        let guess = currNotes[i]
+        let cell =  mainTable.rows[currTry-1].cells[i]
+        let cellContent = cell.querySelector(".cellContent")
 
         if (guess == jingle[i]){
             continue
@@ -207,7 +243,7 @@ function Submit(){
             if (map[guess] && map[guess] >= totalMap[guess]){
 
             }else{
-                cellContent.style.backgroundColor = "rgb(234, 179, 8)"
+                colorMap[i] = closeColor
                 map[guess] = map[guess] || 0
                 map[guess] += 1
 
@@ -215,36 +251,68 @@ function Submit(){
             }
         }
 
-        cellContent.style.backgroundColor = "rgb(148, 163, 184)"
+        colorMap[i] = wrongColor
     }
 
     for (let i = 0;i < jingleLength; i ++){ //last pass do style stuff for all btns
-        var guess = currNotes[i]
-        var cell =  mainTable.rows[currTry-1].cells[i]
-        var cellContent = cell.querySelector(".cellContent")
+        let guess = currNotes[i]
+        let cell =  mainTable.rows[currTry-1].cells[i]
+        let cellContent = cell.querySelector(".cellContent")
 
-        cellContent.dataset.filled = "t"
+        
+        
+        anime({
+            targets: cellContent,
+            scaleY: 0,
+            easing: 'easeInOutQuad',
+            direction:"alternate",
+            duration: animationDuration,
+            delay: animationDelay * i,
+        });
+
+        setTimeout(() => {
+            cellContent.dataset.filled = "t"
+            cellContent.dataset.outline = "f"
+            cellContent.style.backgroundColor = colorMap[i]
+        }, animationDuration + i*animationDelay);
+        
     }
 
 
-    if (won){
-        OnEnd()
-        OnWin()
-        
-    }else{
-        //check if is the last try
-        console.log(currTry);
-        if (currTry == numTries){
+    let ended = currTry == numTries || won
+
+
+    let delay = (jingleLength+1)*animationDelay
+    if (ended){
+        delay += 200 //add a delay if game end
+    }
+
+    setTimeout(() => {
+        debounce = false
+
+        if (ended){
             OnEnd()
-            OnLose();
-            return
         }
 
-        //reset the thing and fucking idk
-        tries.push(currNotes)
-        currNotes = []
-        currTry += 1;
-    }
+        if (won){
+            OnWin()
+            
+        }else{
+            //check if is the last try
+            console.log(currTry);
+            if (currTry == numTries){
+                OnLose();
+                return
+            }
+    
+            //reset the thing and fucking idk
+            tries.push(currNotes)
+            currNotes = []
+            currTry += 1;
+        }
+
+
+    }, delay);
 }
 
 function OnEnd(){
@@ -281,7 +349,10 @@ function Delete(){
     }
 
     var index = currNotes.length-1
-    mainTable.rows[currTry-1].cells[index].querySelector(".cellText").textContent = ""
+
+    let cell = mainTable.rows[currTry-1].cells[index]
+    cell.querySelector(".cellText").textContent = ""
+    cell.querySelector(".cellContent").dataset.outline = "f"
 
     currNotes.pop()
     console.log(currNotes)
@@ -333,7 +404,15 @@ CreateButtons(notes)
 
 Setup()
 
+var playDebounce = false
 playBtn.onclick = function(){
+    if (playDebounce) {
+        return
+    }
+    playDebounce = true
+    setTimeout(() => {
+        playDebounce = false
+    }, jingleLength * noteDelay);
     PlayJingle(jingle)
 }
 
@@ -353,6 +432,15 @@ deleteBtn.onclick = function(){
         return
     }
     Delete()
+}
+
+document.onkeydown = function(event){
+    if (event.code == "Backspace"){
+        if (debounce){
+            return
+        }
+        Delete()
+    }
 }
 
 continueBtn.onclick = function(){

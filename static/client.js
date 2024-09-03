@@ -19,7 +19,7 @@ function UpdateStreak(newValue){
 }
 
 function IncrementStreak(inc){
-    UpdateStreak(streak+inc)
+    UpdateStreak(parseInt(streak)+inc)
 }
 
 
@@ -82,7 +82,7 @@ function GenerateGrid(rows,columns){
 
 function SetupAudios(){
     for (let i = 0;i < soundFiles.length;i++){
-        var audio = new Audio("../notes/"+soundFiles[i]+".mp3");
+        var audio = new Audio("../static/notes/"+soundFiles[i]+".mp3");
         audioObjects[soundFiles[i]] = audio
     }
 }
@@ -239,7 +239,7 @@ function Submit(){
 
         won = false
 
-        if (jingle.indexOf(guess) > 0){
+        if (jingle.indexOf(guess) >= 0){
             if (map[guess] && map[guess] >= totalMap[guess]){
 
             }else{
@@ -324,6 +324,23 @@ function OnEnd(){
 function OnWin(){
     jsConfetti.addConfetti()
 
+    for (let i = 0;i < jingleLength; i ++){ //last pass do style stuff for all btns
+        let cell =  mainTable.rows[currTry-1].cells[i]
+        let cellContent = cell.querySelector(".cellContent")
+
+        anime({
+            targets: cellContent,
+            translateY: -23,
+            easing: 'easeInOutQuad',
+            direction:"alternate",
+            duration: 200,
+            delay: 100 * i,
+        });
+        
+    }
+
+    PlayJingle(jingle)
+
     MakeAlert(successMsgs[Math.floor(Math.random()*(successMsgs.length-1))],"success",4000)
     IncrementStreak(1);
 }
@@ -370,7 +387,7 @@ function Setup(){
     // for (let i = 0 ;i < jingleLength;i++){
     //     jingle.push("C")
     // }
-    jingle = ["C","E","C","F","G"]
+    //jingle = ["F","G","F","D#","D#"]
 
     
     currNotes = []

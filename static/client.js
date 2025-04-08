@@ -28,7 +28,7 @@ const jsConfetti = new JSConfetti()
 
 const jingleLength = 5;
 const numTries = 5;
-const noteDelay = 300
+const noteDelay = 450
 
 var jingle = null;
 var tries = []

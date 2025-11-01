@@ -56,8 +56,8 @@ const successMsgs = [
 ]
 
 const failMsgs = [
-    "shitter lmao",
-    "damn",
+    "lmao",
+    "oh noes",
     "suck",
     "bro is not him"
 ]
